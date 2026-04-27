@@ -2,7 +2,7 @@
 
 /* ============================================
    SCIENS MEDIA COMMAND — app.js
-   Backend Connected Version
+   Frontend + Render Backend Connected
    ============================================ */
 
 // ── CONFIG ──
@@ -67,6 +67,8 @@ function handleLogin() {
       if (err) {
         err.classList.add('show');
         setTimeout(() => err.classList.remove('show'), 3000);
+      } else {
+        alert('Invalid credentials');
       }
 
       if (btn) {
@@ -79,7 +81,7 @@ function handleLogin() {
 
 function handleLogout() {
   sessionStorage.removeItem(SESSION_KEY);
-  window.location.href = 'login.html';
+  window.location.href = 'index.html';
 }
 
 function togglePassword() {
@@ -90,10 +92,14 @@ function togglePassword() {
 
   if (inp.type === 'password') {
     inp.type = 'text';
-    if (icon) icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    if (icon) {
+      icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    }
   } else {
     inp.type = 'password';
-    if (icon) icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    if (icon) {
+      icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    }
   }
 }
 
@@ -187,7 +193,7 @@ function openPlatform(platformId) {
   loadRows();
 }
 
-// ── RENDER CLIENT GRID ──
+// ── CLIENT GRID ──
 function renderClientGrid() {
   const grid = document.getElementById('clientGrid');
   if (!grid) return;
@@ -204,7 +210,7 @@ function renderClientGrid() {
   `).join('');
 }
 
-// ── RENDER PLATFORM GRID ──
+// ── PLATFORM GRID ──
 function renderPlatformGrid() {
   const grid = document.getElementById('platformGrid');
   if (!grid) return;
@@ -217,12 +223,21 @@ function renderPlatformGrid() {
   `).join('');
 }
 
-// ── API CALLS ──
+// ── API ──
 async function loadRows() {
   try {
     const tbody = document.getElementById('tableBody');
+
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>Loading data...</p></div></td></tr>`;
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="10">
+            <div class="empty-state">
+              <p>Loading data...</p>
+            </div>
+          </td>
+        </tr>
+      `;
     }
 
     const res = await fetch(`${API_URL}/data/${currentClient}/${currentPlatform}`);
@@ -242,7 +257,6 @@ async function loadRows() {
 
 async function saveRow(index) {
   const row = currentRows[index];
-
   if (!row) return;
 
   try {
@@ -279,7 +293,6 @@ async function saveRow(index) {
 
 async function updateRow(index) {
   const row = currentRows[index];
-
   if (!row) return;
 
   if (!row._id) {
@@ -332,7 +345,7 @@ async function deleteRow(id) {
   }
 }
 
-// ── TABLE RENDER ──
+// ── TABLE ──
 function renderTable() {
   const tbody = document.getElementById('tableBody');
   if (!tbody) return;
@@ -362,12 +375,7 @@ function buildRowHTML(row, i) {
   return `
     <tr data-index="${i}">
       <td>
-        <input 
-          type="date" 
-          class="table-input" 
-          value="${escapeHtml(row.date || '')}" 
-          onchange="updateField(${i}, 'date', this.value)"
-        />
+        <input type="date" class="table-input" value="${escapeHtml(row.date || '')}" onchange="updateField(${i}, 'date', this.value)" />
       </td>
 
       <td>
@@ -381,41 +389,19 @@ function buildRowHTML(row, i) {
       </td>
 
       <td>
-        <input 
-          type="text" 
-          class="table-input" 
-          placeholder="Title..."
-          value="${escapeHtml(row.title || '')}" 
-          oninput="updateField(${i}, 'title', this.value)"
-        />
+        <input type="text" class="table-input" placeholder="Title..." value="${escapeHtml(row.title || '')}" oninput="updateField(${i}, 'title', this.value)" />
       </td>
 
       <td>
-        <textarea 
-          class="table-textarea" 
-          placeholder="Content copy..."
-          oninput="updateField(${i}, 'content', this.value)"
-        >${escapeHtml(row.content || '')}</textarea>
+        <textarea class="table-textarea" placeholder="Content copy..." oninput="updateField(${i}, 'content', this.value)">${escapeHtml(row.content || '')}</textarea>
       </td>
 
       <td>
-        <input 
-          type="url" 
-          class="table-input" 
-          placeholder="https://..."
-          value="${escapeHtml(row.refLink || '')}" 
-          oninput="updateField(${i}, 'refLink', this.value)"
-        />
+        <input type="url" class="table-input" placeholder="https://..." value="${escapeHtml(row.refLink || '')}" oninput="updateField(${i}, 'refLink', this.value)" />
       </td>
 
       <td>
-        <input 
-          type="url" 
-          class="table-input" 
-          placeholder="https://..."
-          value="${escapeHtml(row.finalLink || '')}" 
-          oninput="updateField(${i}, 'finalLink', this.value)"
-        />
+        <input type="url" class="table-input" placeholder="https://..." value="${escapeHtml(row.finalLink || '')}" oninput="updateField(${i}, 'finalLink', this.value)" />
       </td>
 
       <td>
@@ -430,35 +416,19 @@ function buildRowHTML(row, i) {
       <td>
         <div class="qc-group">
           <label class="radio-label radio-approved">
-            <input 
-              type="radio" 
-              name="qc-${i}" 
-              value="approved" 
-              ${row.qc === 'approved' ? 'checked' : ''}
-              onchange="updateField(${i}, 'qc', 'approved')" 
-            />
+            <input type="radio" name="qc-${i}" value="approved" ${row.qc === 'approved' ? 'checked' : ''} onchange="updateField(${i}, 'qc', 'approved')" />
             Approved
           </label>
 
           <label class="radio-label radio-not">
-            <input 
-              type="radio" 
-              name="qc-${i}" 
-              value="not-approved" 
-              ${row.qc === 'not-approved' ? 'checked' : ''}
-              onchange="updateField(${i}, 'qc', 'not-approved')" 
-            />
+            <input type="radio" name="qc-${i}" value="not-approved" ${row.qc === 'not-approved' ? 'checked' : ''} onchange="updateField(${i}, 'qc', 'not-approved')" />
             Not Approved
           </label>
         </div>
       </td>
 
       <td>
-        <textarea 
-          class="table-textarea" 
-          placeholder="Comments..."
-          oninput="updateField(${i}, 'comments', this.value)"
-        >${escapeHtml(row.comments || '')}</textarea>
+        <textarea class="table-textarea" placeholder="Comments..." oninput="updateField(${i}, 'comments', this.value)">${escapeHtml(row.comments || '')}</textarea>
       </td>
 
       <td>
@@ -476,13 +446,12 @@ function buildRowHTML(row, i) {
   `;
 }
 
-// ── FIELD UPDATE ──
 function updateField(index, field, value) {
   if (!currentRows[index]) return;
   currentRows[index][field] = value;
 }
 
-// ── ADD NEW ROW ──
+// ── ADD ROW ──
 function addNewRow() {
   currentRows.unshift({
     date: todayStr(),
@@ -522,7 +491,7 @@ function showToast(msg) {
   }, 2500);
 }
 
-// ── HTML ESCAPE ──
+// ── ESCAPE HTML ──
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -533,11 +502,12 @@ function escapeHtml(str) {
 
 // ── INIT ──
 function init() {
-  const page = window.location.pathname.split('/').pop() || 'login.html';
+  const page = window.location.pathname.split('/').pop() || 'index.html';
 
+  // home.html = dashboard
   if (page === 'home.html') {
     if (!isLoggedIn()) {
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
       return;
     }
 
@@ -546,8 +516,11 @@ function init() {
 
     syncDateBadge();
     renderClientGrid();
+    return;
+  }
 
-  } else {
+  // index.html = login page
+  if (page === 'index.html' || page === '') {
     if (isLoggedIn()) {
       window.location.href = 'home.html';
       return;
